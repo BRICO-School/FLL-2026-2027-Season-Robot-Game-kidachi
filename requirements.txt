@@ -1,0 +1,3 @@
+pybricks>=3.6.1
+pybricksdev>=1.0.0a49
+
