@@ -267,12 +267,10 @@ class Robot:
         """ジャイロセンサーの使用設定"""
         self._robot.use_gyro(use)
     
-    @property
     def distance_control(self):
         """距離制御（PID設定用）"""
         return self._robot.distance_control
     
-    @property
     def heading_control(self):
         """方向制御（PID設定用）"""
         return self._robot.heading_control
@@ -346,14 +344,14 @@ def setup_pid_control(robot):
 
     # ----- ロボットにPIDゲインを設定 -----
     # 距離制御のPIDゲインを設定
-    robot.distance_control.pid(
+    robot.distance_control().pid(
         kp=DISTANCE_KP,
         ki=DISTANCE_KI,
         kd=DISTANCE_KD
     )
 
     # 方向制御のPIDゲインを設定
-    robot.heading_control.pid(
+    robot.heading_control().pid(
         kp=HEADING_KP,
         ki=HEADING_KI,
         kd=HEADING_KD
