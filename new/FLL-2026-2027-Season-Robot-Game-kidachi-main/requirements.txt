@@ -1,0 +1,6 @@
+pybricks>=3.6.1
+pybricksdev>=1.0.0a49
+
+# Development tools (lint/format)
+ruff==0.6.8
+black==24.8.0

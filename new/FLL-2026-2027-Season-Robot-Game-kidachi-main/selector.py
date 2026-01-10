@@ -147,7 +147,9 @@ async def sensor_logger_task():
 
         # 読み取った値を画面に表示（フォーマットを整えて見やすく）
         print(
-            f"LOG[{elapsed_time:5.0f}ms]: dist={dist:4.0f} mm  heading={heading:4.0f}°  L={left_deg:5.0f}°  R={right_deg:5.0f}°"
+            "LOG["
+            f"{elapsed_time:5.0f}ms]: dist={dist:4.0f} mm  "
+            f"heading={heading:4.0f}°  L={left_deg:5.0f}°  R={right_deg:5.0f}°"
         )
 
         # 0.2秒（200ミリ秒）待機して、次の記録まで待つ

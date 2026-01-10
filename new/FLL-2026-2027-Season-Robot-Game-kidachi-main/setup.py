@@ -22,7 +22,7 @@ from pybricks.hubs import PrimeHub  # ロボットの「脳みそ」（ハブ）
 from pybricks.parameters import Axis, Direction, Port  # ポート、軸、方向などの設定
 from pybricks.pupdevices import Motor  # モーターを使うための道具
 from pybricks.robotics import DriveBase  # ロボットの移動機能を使うための道具
-from pybricks.tools import StopWatch, wait
+from utils.control import apply_curve_settings, run_with_timeout
 
 # ===== デフォルトの速度・加速度設定 =====
 # 各runファイルから共通で使用できる設定値
@@ -35,36 +35,6 @@ DEFAULT_TURN_SETTINGS = {"turn_rate": 240, "turn_acceleration": 850}
 
 # カーブ時の設定
 DEFAULT_CURVE_SETTINGS = {"straight_speed": 240, "straight_acceleration": 800}
-
-
-async def run_with_timeout(start_fn, done_fn, stop_fn, timeout_ms, poll_ms=10):
-    """
-    非同期ループで完了を監視し、タイムアウトで停止する共通関数。
-    """
-    start_fn()
-    timer = StopWatch()
-    timer.reset()
-
-    while timer.time() < timeout_ms:
-        if done_fn():
-            return True
-        await wait(poll_ms)
-
-    stop_fn()
-    return False
-
-
-def apply_curve_settings(set_settings_fn, speed=None, acceleration=None):
-    """
-    カーブ用の速度・加速度設定を適用するユーティリティ。
-    """
-    params = {}
-    if speed is not None:
-        params["straight_speed"] = speed
-    if acceleration is not None:
-        params["straight_acceleration"] = acceleration
-    if params:
-        set_settings_fn(**params)
 
 
 # ===== ハブの設定をする関数 =====

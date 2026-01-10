@@ -56,11 +56,19 @@ pip install -r requirements.txt
 1. 実行したい `runs/runXX/main.py` を開く
 2. **F5** を押してデバッグパネルからロボットを選択
 
-### 3. 構成方針の要点
+### 3. コード自動補正（lint/format）
+
+- 依存を導入: `pip install -r requirements.txt`（開発用ツールも含む）
+- 一括整形（ruff で自動修正＋black で整形）:
+  - **Mac / Linux**: `./tools/format.sh`
+  - **Windows (PowerShell)**: `.\tools\format.ps1`
+- 詳細な手順は `docs/DEV_GUIDE.md` を参照
+
+構成方針の要点  
 
 - run ごとにディレクトリを切り、入口は `runXX/main.py` で統一  
 - 試作・作者別・計測データを `runs/runXX/variants/` や `runs/runXX/assets/` に置ける拡張性を確保  
-- 詳細は `docs/STRUCTURE.md` を参照（共通関数は `docs/DEV_GUIDE.md`）
+- 詳細は `docs/STRUCTURE.md` を参照
 
 ### 4. 開発モード / 本番モード
 
@@ -112,16 +120,14 @@ FLL-2026-2027-Season-Robot-Game/
 │   └── __init__.py
 ├── selector.py             # プログラムセレクター（競技用）
 ├── setup.py                # ロボット初期化（共通設定）
-├── utils/                  # 共通ユーティリティ
-│   ├── control.py          # タイムアウト/計測
-│   ├── runtime.py          # 単体実行時のパス解決
-│   └── logger.py           # ログ出力（tee）
-├── requirements.txt        # 依存パッケージ（ランタイム）
+├── requirements.txt        # 依存パッケージ（ランタイム+開発ツール）
 ├── .vscode/launch.json     # VS Code デバッグ設定
+├── pyproject.toml          # ruff / black の設定
+├── tools/format.sh         # 自動補正スクリプト
 └── docs/
     ├── DEV_GUIDE.md        # 開発手順・共通関数の使い方
     └── STRUCTURE.md        # 構成方針（runごとのディレクトリ + 変種/資産も格納）
-└── old/                    # 旧バージョンとバックアップ
+└── old/2025-2026/      # 旧バージョンとバックアップ
 ```
 
 構成の詳細方針（runごとのディレクトリ運用） は `docs/STRUCTURE.md` を参照。
