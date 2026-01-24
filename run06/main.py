@@ -1,18 +1,9 @@
-"""
-新しい run ディレクトリを作るときのテンプレート。
-runXX/main.py をこのファイルからコピーして、ACTIVE_VARIANT とラベルを差し替えてください。
-"""
-
 from pybricks.tools import StopWatch, multitask, run_task, wait
+import m13_m03 as _variant_m13_m03  # 同ディレクトリ内をフラット import
+import setup
 
-# 同ディレクトリ内のバリアント（例: sample_variant.py）を指定
-ACTIVE_VARIANT = "sample_variant"
-try:
-    import run_template.sample_variant as _variant_sample
-except ImportError:
-    import sample_variant as _variant_sample
-
-VARIANTS = {"sample_variant": _variant_sample}
+ACTIVE_VARIANT = "m13_m03"
+VARIANTS = {"m13_m03": _variant_m13_m03}
 
 
 async def run_with_timing(label, coro_fn):
@@ -26,15 +17,12 @@ async def run_with_timing(label, coro_fn):
 
 
 def load_variant():
-    """
-    ACTIVE_VARIANT で指定したモジュールをロードして返す。
-    """
     return VARIANTS[ACTIVE_VARIANT]
 
 
 async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
     variant = load_variant()
-    label = f"runXX:{ACTIVE_VARIANT}"
+    label = f"run06:{ACTIVE_VARIANT}"
     return await run_with_timing(
         label,
         lambda: variant.run(
@@ -47,13 +35,11 @@ async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
         ),
     )
 
-
-if __name__ == "__main__":
-    from setup import initialize_robot
-
-    hub, robot, left_wheel, right_wheel, left_lift, right_lift = initialize_robot()
+def main(hub=None, robot=None, left_wheel=None, right_wheel=None, left_lift=None, right_lift=None):
+    if hub is None:
+        hub, robot, left_wheel, right_wheel, left_lift, right_lift = setup.initialize_robot()
     variant = load_variant()
-    label = f"runXX:{ACTIVE_VARIANT}"
+    label = f"run06:{ACTIVE_VARIANT}"
 
     async def timed_run():
         await run_with_timing(
@@ -91,3 +77,7 @@ if __name__ == "__main__":
             )
     else:
         run_task(timed_run())
+
+
+if __name__ == "__main__":
+    main()
