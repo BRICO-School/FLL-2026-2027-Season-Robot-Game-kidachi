@@ -11,8 +11,9 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": { "PYTHONPATH": "${workspaceFolder}" }
-        },        {
-            "name": "Build & Send (Hub Menu)",
+        },
+        {
+            "name": "Build & Send (Hub Menu) - Hub2",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/selector.py",
@@ -23,11 +24,22 @@
             "env": { "PYTHONPATH": "${workspaceFolder}" }
         },
         {
-            "name": "Build & Send (Hub Menu)",
+            "name": "Build & Send (Hub Menu) - Hub3",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/selector.py",
             "args": ["--hub", "Pybricks Hub3"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": { "PYTHONPATH": "${workspaceFolder}" }
+        },
+        {
+            "name": "Build & Run Current Mission",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/selector.py",
+            "args": ["--single", "${file}", "--start-now", "--hub", "Pybricks Hub3"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": true,

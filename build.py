@@ -13,7 +13,7 @@ import argparse
 import ast
 import re
 from pathlib import Path
-from typing import Iterable, List, Sequence
+from typing import Iterable, List, Optional, Sequence
 
 
 def load_text(path: Path) -> str:
@@ -115,9 +115,39 @@ def mission_binding(mission_name: str, exports: Iterable[str], global_names: Ite
     return "\n".join(lines)
 
 
-def rewrite_main(main_text: str, mission_names: List[str]) -> str:
+def apply_single_mission_override(main_text: str, mission_name: str) -> str:
+    alias = f"_variant_{mission_name}"
+    import_pattern = rf"^\s*import\s+{re.escape(mission_name)}\s+as\s+{re.escape(alias)}\s*$"
+    if not re.search(import_pattern, main_text, flags=re.M):
+        lines = main_text.splitlines()
+        insert_at = 0
+        for idx, line in enumerate(lines):
+            if line.startswith("from pybricks.tools"):
+                insert_at = idx + 1
+                break
+        lines.insert(insert_at, f"import {mission_name} as {alias}  # auto-selected mission")
+        main_text = "\n".join(lines)
+
+    main_text = re.sub(
+        r'^(?P<indent>\s*)ACTIVE_VARIANT\s*=\s*["\'][^"\']*["\']\s*$',
+        rf'\g<indent>ACTIVE_VARIANT = "{mission_name}"',
+        main_text,
+        flags=re.M,
+    )
+    main_text = re.sub(
+        r"^(?P<indent>\s*)VARIANTS\s*=\s*{.*}$",
+        rf'\g<indent>VARIANTS = {{"{mission_name}": {alias}}}',
+        main_text,
+        flags=re.M,
+    )
+    return main_text
+
+
+def rewrite_main(main_text: str, mission_names: List[str], mission_override: Optional[str] = None) -> str:
     """main.py の import をファイル内参照に書き換える。"""
     main_text = drop_setup_imports(strip_main_guard(main_text))
+    if mission_override:
+        main_text = apply_single_mission_override(main_text, mission_override)
     lines: List[str] = []
     for line in main_text.splitlines():
         stripped = line.strip()
@@ -142,6 +172,8 @@ def rewrite_main(main_text: str, mission_names: List[str]) -> str:
 
     rewritten = "\n".join(lines)
     rewritten = rewritten.replace("setup.", "")
+    rewritten = rewritten.replace('hasattr(variant, "stop_logging")', '"stop_logging" in globals()')
+    rewritten = rewritten.replace("variant.stop_logging = True", 'globals()["stop_logging"] = True')
     return rewritten
 
 
@@ -468,7 +500,7 @@ if __name__ == "__main__":
     print(f"Generated {output} with runs: {[d.name for d in run_dirs]}")
 
 
-def build(run_dir: Path, output: Path) -> None:
+def build(run_dir: Path, output: Path, mission_override: Optional[str] = None) -> None:
     mission_files = [
         path for path in sorted(run_dir.glob("m*.py")) if path.name != "main.py" and re.match(r"m\d", path.stem)
     ]
@@ -502,7 +534,10 @@ def build(run_dir: Path, output: Path) -> None:
 
     parts.append("# ---- main ----")
     main_text = load_text(main_path)
-    parts.append(rewrite_main(main_text, mission_names))
+    parts.append(rewrite_main(main_text, mission_names, mission_override=mission_override))
+    parts.append("\n# ---- entry ----")
+    parts.append('if __name__ == "__main__":')
+    parts.append("    main()")
 
     output.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
     print(f"Generated {output} from {run_dir.name}")
