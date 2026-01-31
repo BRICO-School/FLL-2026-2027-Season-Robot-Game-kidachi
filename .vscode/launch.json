@@ -11,6 +11,27 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": { "PYTHONPATH": "${workspaceFolder}" }
+        },        {
+            "name": "Build & Send (Hub Menu)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/selector.py",
+            "args": ["--hub", "Pybricks Hub2"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": { "PYTHONPATH": "${workspaceFolder}" }
+        },
+        {
+            "name": "Build & Send (Hub Menu)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/selector.py",
+            "args": ["--hub", "Pybricks Hub3"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": { "PYTHONPATH": "${workspaceFolder}" }
         }
     ]
 }
