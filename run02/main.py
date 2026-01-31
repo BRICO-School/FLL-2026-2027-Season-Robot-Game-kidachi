@@ -1,7 +1,8 @@
-from pybricks.tools import StopWatch, multitask, run_task
+from pybricks.tools import StopWatch, multitask, run_task, wait
 import m09_m07 as _variant_m09_m07  # 同ディレクトリ内をフラット import
 import setup
 
+CURRENT_MISSION = None
 ACTIVE_VARIANT = "m09_m07"
 VARIANTS = {"m09_m07": _variant_m09_m07}
 
@@ -16,13 +17,23 @@ async def run_with_timing(label, coro_fn):
     return result
 
 
+def get_active_variant_name():
+    if isinstance(CURRENT_MISSION, str) and CURRENT_MISSION in VARIANTS:
+        return CURRENT_MISSION
+    for name, variant in VARIANTS.items():
+        if getattr(variant, "IS_CURRENT", False):
+            return name
+    return ACTIVE_VARIANT
+
+
 def load_variant():
-    return VARIANTS[ACTIVE_VARIANT]
+    name = get_active_variant_name()
+    return name, VARIANTS[name]
 
 
 async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
-    variant = load_variant()
-    label = f"run02:{ACTIVE_VARIANT}"
+    variant_name, variant = load_variant()
+    label = f"run02:{variant_name}"
     return await run_with_timing(
         label,
         lambda: variant.run(
@@ -39,8 +50,8 @@ async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
 def main(hub=None, robot=None, left_wheel=None, right_wheel=None, left_lift=None, right_lift=None):
     if hub is None:
         hub, robot, left_wheel, right_wheel, left_lift, right_lift = setup.initialize_robot()
-    variant = load_variant()
-    label = f"run02:{ACTIVE_VARIANT}"
+    variant_name, variant = load_variant()
+    label = f"run02:{variant_name}"
 
     async def timed_run():
         await run_with_timing(
@@ -56,7 +67,21 @@ def main(hub=None, robot=None, left_wheel=None, right_wheel=None, left_lift=None
         )
 
     if hasattr(variant, "sensor_logger_task"):
-        run_task(multitask(variant.sensor_logger_task(hub, robot, left_wheel, right_wheel), timed_run()))
+        if hasattr(variant, "stop_logging"):
+
+            async def wrapped_run():
+                await timed_run()
+                variant.stop_logging = True
+                await wait(500)
+
+            run_task(
+                multitask(
+                    variant.sensor_logger_task(hub, robot, left_wheel, right_wheel),
+                    wrapped_run(),
+                )
+            )
+        else:
+            run_task(multitask(variant.sensor_logger_task(hub, robot, left_wheel, right_wheel), timed_run()))
     else:
         run_task(timed_run())
 

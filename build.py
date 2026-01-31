@@ -202,7 +202,9 @@ def indent_text(text: str, spaces: int) -> str:
 def build_single_run_block(run_dir: Path) -> str:
     """runXX ディレクトリを 1 つのファクトリ関数にまとめたコードを返す。"""
     mission_files = [
-        path for path in sorted(run_dir.glob("m*.py")) if path.name != "main.py" and re.match(r"m\d", path.stem)
+        path
+        for path in sorted(run_dir.glob("[mM]*.py"))
+        if path.name != "main.py" and re.match(r"[mM]\d", path.stem)
     ]
     if not mission_files:
         raise FileNotFoundError(f"No mission file (m*.py) found in {run_dir}")
@@ -213,17 +215,20 @@ def build_single_run_block(run_dir: Path) -> str:
         raise FileNotFoundError(f"main.py not found in {run_dir}")
 
     mission_names: List[str] = []
+    all_global_names = set()
     parts: List[str] = [f"def _make_{run_dir.name}():", f"    # Auto-generated from {run_dir.name}"]
 
     for mission_path in mission_files:
         mission_name = mission_path.stem
         mission_names.append(mission_name)
         mission_text, exports, global_names = rewrite_mission(mission_path)
+        all_global_names.update(global_names)
         parts.append(f"    # ---- mission: {mission_name} ----")
-        if global_names:
-            parts.append(f"    global {', '.join(global_names)}")
         parts.append(indent_text(mission_text, 4))
         parts.append(indent_text(mission_binding(mission_name, exports, global_names), 4))
+
+    if all_global_names:
+        parts.insert(2, f"    global {', '.join(sorted(all_global_names))}")
 
     if setup_path.exists():
         parts.append("    # ---- setup ----")
@@ -502,7 +507,9 @@ if __name__ == "__main__":
 
 def build(run_dir: Path, output: Path, mission_override: Optional[str] = None) -> None:
     mission_files = [
-        path for path in sorted(run_dir.glob("m*.py")) if path.name != "main.py" and re.match(r"m\d", path.stem)
+        path
+        for path in sorted(run_dir.glob("[mM]*.py"))
+        if path.name != "main.py" and re.match(r"[mM]\d", path.stem)
     ]
     if not mission_files:
         raise FileNotFoundError(f"No mission file (m*.py) found in {run_dir}")
@@ -523,8 +530,6 @@ def build(run_dir: Path, output: Path, mission_override: Optional[str] = None) -
         mission_names.append(mission_name)
         mission_text, exports, global_names = rewrite_mission(mission_path)
         parts.append(f"# ---- mission: {mission_name} ----")
-        if global_names:
-            parts.append(f"global {', '.join(global_names)}")
         parts.append(mission_text)
         parts.append(mission_binding(mission_name, exports, global_names))
 

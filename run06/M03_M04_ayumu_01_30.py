@@ -2,6 +2,7 @@ from pybricks.tools import StopWatch, multitask, run_task, wait
 from setup import initialize_robot
 
 stop_logging = False
+IS_CURRENT = True
 
 
 async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
@@ -78,4 +79,3 @@ async def main():
 if __name__ == "__main__":
     hub, robot, left_wheel, right_wheel, left_lift, right_lift = initialize_robot()
     run_task(multitask(sensor_logger_task(hub, robot, left_wheel, right_wheel), main()))
-

@@ -7,6 +7,8 @@ from pybricks.tools import wait
 
 # stop_logging を持つと、main 側がセンサーロガー停止を面倒みてくれます
 stop_logging = False
+# IS_CURRENT = True を付けると、そのバリアントが優先選択されます
+IS_CURRENT = False
 
 
 async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):

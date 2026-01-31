@@ -83,7 +83,7 @@ def main():
             single_path = root / single_path
         if single_path.is_file():
             candidate = single_path.parent
-            mission_override = single_path.stem if re.match(r"m\d", single_path.stem) else None
+            mission_override = single_path.stem if re.match(r"[mM]\d", single_path.stem) else None
         else:
             candidate = single_path
             mission_override = None

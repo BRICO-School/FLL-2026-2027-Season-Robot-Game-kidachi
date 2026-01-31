@@ -4,13 +4,12 @@ runXX/main.py をこのファイルからコピーして、ACTIVE_VARIANT とラ
 """
 
 from pybricks.tools import StopWatch, multitask, run_task, wait
+import setup
 
 # 同ディレクトリ内のバリアント（例: sample_variant.py）を指定
+CURRENT_MISSION = None
 ACTIVE_VARIANT = "sample_variant"
-try:
-    import run_template.sample_variant as _variant_sample
-except ImportError:
-    import sample_variant as _variant_sample
+import sample_variant as _variant_sample
 
 VARIANTS = {"sample_variant": _variant_sample}
 
@@ -25,16 +24,26 @@ async def run_with_timing(label, coro_fn):
     return result
 
 
+def get_active_variant_name():
+    if isinstance(CURRENT_MISSION, str) and CURRENT_MISSION in VARIANTS:
+        return CURRENT_MISSION
+    for name, variant in VARIANTS.items():
+        if getattr(variant, "IS_CURRENT", False):
+            return name
+    return ACTIVE_VARIANT
+
+
 def load_variant():
     """
-    ACTIVE_VARIANT で指定したモジュールをロードして返す。
+    ACTIVE_VARIANT/CURRENT_MISSION/IS_CURRENT からモジュールを返す。
     """
-    return VARIANTS[ACTIVE_VARIANT]
+    name = get_active_variant_name()
+    return name, VARIANTS[name]
 
 
 async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
-    variant = load_variant()
-    label = f"runXX:{ACTIVE_VARIANT}"
+    variant_name, variant = load_variant()
+    label = f"runXX:{variant_name}"
     return await run_with_timing(
         label,
         lambda: variant.run(
@@ -48,12 +57,11 @@ async def run(hub, robot, left_wheel, right_wheel, left_lift, right_lift):
     )
 
 
-if __name__ == "__main__":
-    from setup import initialize_robot
-
-    hub, robot, left_wheel, right_wheel, left_lift, right_lift = initialize_robot()
-    variant = load_variant()
-    label = f"runXX:{ACTIVE_VARIANT}"
+def main(hub=None, robot=None, left_wheel=None, right_wheel=None, left_lift=None, right_lift=None):
+    if hub is None:
+        hub, robot, left_wheel, right_wheel, left_lift, right_lift = setup.initialize_robot()
+    variant_name, variant = load_variant()
+    label = f"runXX:{variant_name}"
 
     async def timed_run():
         await run_with_timing(
@@ -91,3 +99,7 @@ if __name__ == "__main__":
             )
     else:
         run_task(timed_run())
+
+
+if __name__ == "__main__":
+    main()
